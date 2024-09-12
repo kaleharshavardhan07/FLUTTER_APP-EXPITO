@@ -1,4 +1,4 @@
-Here's an enhanced version of the `README.md` for your Flutter app, including a flowchart and map diagram description. You can use this for your GitHub project:
+
 
 ---
 
@@ -106,7 +106,7 @@ graph LR
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/expito.git
+   git clone https://github.com/kaleharshavardhan07/FLUTTER_APP-EXPITO.git
    cd expito
    ```
 
@@ -142,9 +142,9 @@ graph LR
 - [Google Generative AI](https://pub.dev/packages/google_generative_ai) for AI-driven financial suggestions
 - [Flutter Markdown](https://pub.dev/packages/flutter_markdown) for displaying AI responses
 
-## Screenshots
+<!-- ## Screenshots -->
 
-Add some relevant screenshots to showcase the UI and functionality.
+
 
 ---
 
