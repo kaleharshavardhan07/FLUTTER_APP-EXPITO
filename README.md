@@ -159,5 +159,3 @@ graph LR
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-This version includes diagrams for both app flow and architecture, explaining the data flow and features of your app more comprehensively. You can generate the diagrams using tools like [Mermaid](https://mermaid-js.github.io/mermaid/#/) to visualize them directly in Markdown on platforms like GitHub.
