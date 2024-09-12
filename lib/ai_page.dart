@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'transaction.dart'; 
 import 'dart:convert';
+// import 'flutter_dotenv.env';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AiPage extends StatefulWidget {
   @override
   _AiPageState createState() => _AiPageState();
 }
-
 class _AiPageState extends State<AiPage> {
-  final List<String> _questions = [
-    "What is the total income recorded for this month?",
+  final List<String> _questions = ["What is the total income recorded for this month?",
     "Can you provide a detailed breakdown of my income sources?",
     "How can I optimize my budget to reduce unnecessary expenses?",
     "Can you provide a detailed breakdown of my spend?",
@@ -34,22 +33,28 @@ class _AiPageState extends State<AiPage> {
   "Can you provide a forecast of my monthly expenses based on current spending trends?",
   // "How can I better allocate my budget to meet my long-term financial goals?",
   // "What are my fixed vs. variable expenses and how can I manage them more effectively?"
-  ];
+   ];
 
   final List<String> _messages = [];
   String _selectedQuestion = '';
   bool _isLoading = false;
+  GenerativeModel? model;  
 
   @override
   void initState() {
     super.initState();
+    dotenv.load(fileName: ".env").then((_) {
+      final apiKey = dotenv.env['API_KEY'] ?? '';
+      if (apiKey.isNotEmpty) {
+        model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+      }
+    });
   }
 
   Future<String> _fetchTransactions() async {
     try {
-      var transactionBox = Hive.box<Transaction>('transactions');
+      var transactionBox = await Hive.openBox<Transaction>('transactions');
       List<Transaction> transactions = transactionBox.values.toList();
-
       List<Map<String, dynamic>> transactionsJson = transactions.map((transaction) {
         return {
           'category': transaction.isIncome ? 'income' : 'spend',
@@ -71,29 +76,22 @@ class _AiPageState extends State<AiPage> {
       _isLoading = true;
     });
 
-    final apiKey = 'AIzaSyAJOUkbXwevtJZ1BhVa1jkCFcqIWsvz9Ok'; 
-    if (apiKey.isEmpty) {
-      print('API Key is empty');
+    if (model == null) {
       setState(() {
         _isLoading = false;
-        _messages.add('Error: API Key is empty.');
+        _messages.add('Error: AI model not initialized.');
       });
       return;
     }
 
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: apiKey,
-      );
-
       var content = Content.text('$question\nTransactions: $transactionsJsonString');
-      final response = await model.generateContent([content]);
+      final response = await model!.generateContent([content]);
 
       setState(() {
         _isLoading = false;
+        _messages.add('Expenso-AI: ${response.text}');
       });
-      _messages.add('Expenso-AI: ${response.text}');
     } catch (e) {
       print('Error sending question or receiving response: $e');
       setState(() {
@@ -135,15 +133,15 @@ class _AiPageState extends State<AiPage> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   return Container(
-                     margin: new EdgeInsets.all(16),
+                    margin: new EdgeInsets.all(16),
                     padding: EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 204, 205, 206),
                       border: Border.all(
                         color: Colors.blue,
-                        width: 2.0, 
+                        width: 2.0,
                       ),
-                      borderRadius: BorderRadius.circular(12.0), // Border radius
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: MarkdownBody(
                       data: _messages[index],
